@@ -1,15 +1,26 @@
 require("dotenv").config();
 
+var Spotify = require('node-spotify-api');
+
 var fs = require("fs");
 
 var keys = require("./keys.js");
 
 var axios = require("axios");
+
 console.log("WORKING")
 
+if (!search) {
+  search = "spotify-this-song";
+}
+if (!term) {
+  term = "The Sign";
+}
+
+console.log("!@#@!#@!#!@#" + keys.spotify.id);
 
 //THIS WILL ALLOW ACCESS TO SPOTIFY API
-/* var spotify = new Spotify(keys.spotify); */
+var spotify = new Spotify(keys.spotify);
 
 
 var search = process.argv[2];
@@ -26,7 +37,7 @@ if (search === "concert-this") {
 } else if (search === "spotify-this-song") {
 /*   tv.findActor(term); // CHANGE */
   console.log("Searching for the artist, song name, a preview link, and the album...");
-  spotify(term);
+  spotifyfunc(term);
 
 } else if (search === "movie-this") {
 /*   tv.findActor(term); // CHANGE */
@@ -36,6 +47,7 @@ if (search === "concert-this") {
 } else if (search === "do-what-it-says") {
 /*   tv.findActor(term); // CHANGE */
   console.log("Searching through random.txt...");
+  doWhatItSays();
 }
 
 
@@ -58,26 +70,20 @@ function concert(artistName) {
 // SPOTIFY-THIS-SONG
 //////////////////////////////////////////////////////////////////////
 
-function spotify(songName) {
-  if (!search) {
-    search = "spotify-this-song";
-  }
-  if (!term) {
-    term = "The Sign";
-  }
+function spotifyfunc(songName) {
 
-  var spotify = new Spotify({
-    id: spotifyKeyInfo["spotify"].id,
-    secret: spotifyKeyInfo["spotify"].secret
+  var spotifyConstructor = new Spotify({
+    id: keys.spotify.id,
+    secret: keys.spotify.secret
   });
 
-  spotify.request('https://api.spotify.com/v1/search?q=track:' + songName + '&type=track&limit=10', function(error, response) {
+  spotifyConstructor.request('https://api.spotify.com/v1/search?q=track:' + term + '&type=track&limit=10', function(error, response) {
       if (error){
           return console.log(error);
       };
       console.log("Artist: " + response.tracks.items[0].artists[0].name);
       console.log("Song: " + response.tracks.items[0].name);
-      console.log("URL: " + response.tracks.items[0].preview_url);
+      console.log("Link: " + response.tracks.items[0].preview_url);
       console.log("Album: " + response.tracks.items[0].album.name);
   });
 };
@@ -111,4 +117,16 @@ axios.get("http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=tril
 //////////////////////////////////////////////////////////////////////
 // DO-WHAT-IT-SAYS
 //////////////////////////////////////////////////////////////////////
-console.log("WEWEWEWEWEWEWE#@#@#@#@#@#@");
+
+function doWhatItSays() {
+
+  fs.readFile("random.txt", "utf8", function(error, data) {
+    if (error) {
+      return console.log(error);
+    }
+      var output = data.split(",");
+      for (var i = 0; i < output.length; i++) {
+          console.log(output[i]);
+      }
+    });
+};
